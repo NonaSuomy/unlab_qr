@@ -1,33 +1,25 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors','On');
-require_once("classes/QRCode.class.php");
+/**
+ * Create php as of version 1.0
+ *
+ * @date 8th Nov 2012
+ */
+//include the phpqrcode library
+require_once("config.php");
 
-if ( isset($_GET['q']) && $_GET['q'] != "" )
+use Unlab\QRCode as unQR;
+use Unlab\Utility as Utility;
+
+if ( Utility::getGetVal("q", FALSE) !== FALSE )
 {
-    $data = $_GET['q'];
-    //Create a new QRCode Object
-    if ( isset($_GET['sa']) && !empty($_GET['sa']) )
-    {
-        $scale = $_GET['sa'];
-    }
-    else
-    {
-        $scale = 0.15;
-    }
+    $data       = Utility::getGetVal("q", "Visit #unlab on Freenode");
+    $scale      = Utility::getGetVal("logoScale", 0.1);
+    $size       = Utility::getGetVal("qrSize", 250);
 
-    if ( isset($_GET['si']) && !empty($_GET['si'] ) )
-    {
-        $size = $_GET['si'];
-    }
-    else
-    {
-        $size = 250;
-    }
-    $qrCode = new QRCode($data, "img/logo.png", $scale, $size,$size );
+    $qrCode = new unQR($data, "img/logo.png", $scale, $size,$size );
 
     //Get the google QR
-    $googleQR       = $qrCode->getGoogleQR($data, $size, $size);
+    $qrFinal       = $qrCode->getGoogleQR($data, $size, $size);
 
     //recolour the $newLogo
     $newLogo = $qrCode->resizeImage($qrCode->getSourceImage());
@@ -35,18 +27,12 @@ if ( isset($_GET['q']) && $_GET['q'] != "" )
     //$newLogo = $qrCode->removeColor($newLogo, "ffffff");
 
     //Caluclate the Center Point of the QR image
-    $qrCode->postionSourceOnDest($newLogo, $googleQR, "bottom_right");
-
+    $qrCode->postionSourceOnDest($newLogo, $qrFinal, "bottom_right");
 
     //Show the outcome
-    $result = $qrCode->getSuccess();
-    if ( $result === true )
+    if ($qrCode->getSuccess() === true )
     {
-        print $qrCode->save($googleQR);
-    }
-    else
-    {
-        var_dump($result);
+        print unLab\PathLoader::getRootURL() . "/" . $qrCode->save($qrFinal);
     }
 }
 else

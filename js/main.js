@@ -1,13 +1,25 @@
-
 $(function() {
-	var myurl = "http://www.bytenight.de/gd/";
 	$("#qrGeneratorForm").submit(function(){
-		var qTerm = $("#qTerm").val();
-		var scale  = $("#scale").val();
-		var size  = $("#size").val();
-		jQuery.get('create.php', {q: qTerm, sa: scale, si: size}, function(data, textStatus, xhr) {
+		var qTerm   	= $("#qTerm").val();
+		var scale   	= $("#scale").val();
+		var size    	= $("#size").val();
+		var qrscale 	= $("#qrscale").val();
+		var version 	= $("#version_selector option:selected").val();
+		var urlString   = "";
+		switch (version)
+		{
+			case "local":
+				urlString = "new_create.php";
+				break;
+
+			case "google":
+			default:
+				urlString = "create.php";
+		}
+
+		jQuery.get('../' + urlString, {q: qTerm, logoScale: scale, qrSize: size, qrScale: qrscale}, function(data, textStatus, xhr) {
 			$("#imgBox").attr("src", data);
-			$("#url").val(myurl + data);
+			$("#url").val(data);
 			$("#resultCNT").fadeIn();
 		});
 		return false;
@@ -17,5 +29,3 @@ $(function() {
 		$(this).select();
 	});
 });
-
-

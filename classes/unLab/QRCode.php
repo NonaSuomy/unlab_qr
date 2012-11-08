@@ -5,11 +5,15 @@
  * Furthermore it can alter the image, display it directly or save it to the disk
  * @version 1.0.0
  */
+
+namespace Unlab;
+
 class QRCode
 {
     /**
      * Is the Name of the source file for the logo
      * @var string
+     * @since 1.0
      */
     private $sourceLogo    = "";
 
@@ -17,12 +21,14 @@ class QRCode
     /**
      * Is the data you want to put in the QR
      * @var string
+     * @since 1.0
      */
     private $data          = "";
 
     /**
      * Is the scale the logo will be resized to its a % where 1= 100% and 0=0%
      * @var double
+     * @since 1.0
      */
     private $resizeScale   = 1;
 
@@ -30,30 +36,35 @@ class QRCode
     /**
      * This is the width of the source logo image
      * @var int
+     * @since 1.0
      */
     private $sourceWidth   = 0;
 
     /**
      * This is the height of the source logo image
      * @var int
+     * @since 1.0
      */
     private $sourceHeight  = 0;
 
     /**
      * TThis is the resource for the outcome picture (QR code with Logo )
      * @var image resource
+     * @since 1.0
      */
     private $outcome       = NULL;
 
     /**
      * This is the width of the outcome qr code image
      * @var int
+     * @since 1.0
      */
     private $outcomeWidth  = 0;
 
     /**
      * This is the height of the outcome qr code image
      * @var int
+     * @since 1.0
      */
     private $outcomeHeight = 0;
 
@@ -61,6 +72,7 @@ class QRCode
      * This is the opacity/transparency the logo will be put on to
      * the QR code, default is 100% visibility
      * @var int
+     * @since 1.0
      */
     private $opacity       = 100;
 
@@ -69,11 +81,13 @@ class QRCode
      * If the success is true the image will be shown
      * if not there has been an error, that could have been prevented
      * @var boolean
+     * @since 1.0
      */
     private $success       = FALSE;
 
     /**
      * The constructor takes a few optional parameters
+     * @since 1.0
      * @param $data data what you want to put into the qr
      * @param $sourceLogo sourcelogo  name of the logo file
      * @param $resizeScale resizeScale the scale between 0 and 1 how big the logo will be printed onto the QR
@@ -111,6 +125,7 @@ class QRCode
 
     /**
      * Removes a color from the image
+     * @since 1.0
      * @param $image image the source image
      * @param $color color  either a HEX String or an array in form of array("green"=>0, "blue"=>0, "red"=>0)
      * @param $xor xor  to determine weather it is NOT the color or only the color
@@ -167,6 +182,7 @@ class QRCode
 
     /**
      * Swaps a color in the image
+     * @since 1.0
      * @param $image image the source image
      * @param $color color  either a HEX String or an array in form of array("green"=>0, "blue"=>0, "red"=>0)
      * @param $xor xor  to determine weather it is NOT the color or only the color
@@ -225,6 +241,7 @@ class QRCode
 
     /**
      * Creates an array of colours based on param
+     * @since 1.0
      * @param $string / array color "aabbcc" or array('red' => 123, "green" => 123, "blue" => 123)
      */
     private function getColorArray($color)
@@ -252,10 +269,17 @@ class QRCode
     /**
      * We save an image with the current timestamp as a PNG
      * @param $resource image PNG image to save
+     * @param $string filename where the file is saved since 1.2
+     * @since  1.0
+     * @return string The Location to the file
      */
-    public function save($image)
+    public function save($image, $filename = "")
     {
-        $filename = "img/qr/". time() . ".png"; //we should change the path in the future!!!
+        //added in 1.2
+        if ( $filename == "" )
+        {
+            $filename = "img/qr/". time() . ".png";
+        }
         imagepng($image, $filename);
         imagedestroy($image);
         return $filename;
@@ -263,6 +287,7 @@ class QRCode
 
     /**
      * Displays the image as PNG, by changin the mime type of the header
+     * @since 1.0
      * @param $resource image png image to show
      */
     public function display($image)
@@ -276,6 +301,7 @@ class QRCode
 
     /**
      * Positions the source image onto the destination image based on the positon, default is center
+     * @since 1.0
      * @param $resource sourceImage the source image aka the logo
      * @param $resource destinationImage the QR code
      * @param $string position default is center | bottom_right only in V1
@@ -289,19 +315,24 @@ class QRCode
         switch ($position)
         {
             case "bottom_right":
-                $destX = $this->getOutcomeWidth() - $this->getResizedSourceWidth();
-                $destY = $this->getOutcomeHeight() - $this->getResizedSourceHeight();
+                $destX = imagesx($destinationImage) - $this->getResizedSourceWidth();
+                $destY = imagesy($destinationImage) - $this->getResizedSourceHeight();
             break;
 
             case "center":
             default:
-                $destX = ($this->getOutcomeWidth() / 2) - ( $this->getResizedSourceWidth() / 2);
-                $destY = ($this->getOutcomeHeight() / 2) - ($this->getResizedSourceHeight() / 2);
+                $destX = (imagesx($destinationImage) / 2) - ( $this->getResizedSourceWidth() / 2);
+                $destY = (imagesy($destinationImage) / 2) - ($this->getResizedSourceHeight() / 2);
         }
         //should return a bool
         return imagecopymerge($destinationImage, $sourceImage, $destX, $destY, 0, 0, $this->getResizedSourceWidth(), $this->getResizedSourceHeight(), $this->getOpacity());
     }
 
+    /**
+     * Resizes the image
+     * @param $resource image
+     * @since 1.0
+     */
     public function resizeImage($image)
     {
         //calculate the new sizes first
@@ -314,16 +345,33 @@ class QRCode
 
     /**
      * Returns the source image
-     * @return image returns the image as an image
+     * @since 1.0
+     * @return resource The image or NULL
      */
     public function getSourceImage()
     {
-        $this->success = true; // TEMP
-        return imagecreatefrompng( $this->sourceLogo );
+       return $this->getImageFromFile($this->sourceLogo);
+    }
+
+    /**
+     * Returns an image from filename
+     * @param $string filename path to file
+     * @since  1.2
+     */
+    public function getImageFromFile($filename)
+    {
+        $image  =   imagecreatefrompng( $filename );
+        if ($image)
+        {
+            $this->success = TRUE;
+            return $image;
+        }
+        return NULL;
     }
 
     /**
      * This sets the height and width of the source image
+     * @since 1.0
      * @return void
      */
     private function calculateSourceLogo()
@@ -333,11 +381,12 @@ class QRCode
     }
 
     /**
-    * Returns an image resource - Google QR code API
-    * @param $string data the data that we want to hide in the QR
-    * @param $int width the width of the google QR
-    * @param $int height the height of the google QR
-    */
+     * Returns an image resource - Google QR code API
+     * @since 1.0
+     * @param $string data the data that we want to hide in the QR
+     * @param $int width the width of the google QR
+     * @param $int height the height of the google QR
+     */
     public function getGoogleQR($data = "", $width, $height)
     {
         //The Google QR Code

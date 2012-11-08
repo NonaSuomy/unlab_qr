@@ -36,7 +36,19 @@
                         </fieldset>
                         <fieldset>
                             <legend>Extra Settings</legend>
-                            <label>QR Size</label>
+
+                            <label>Choose Version</label>
+                            <select id="version_selector">
+                                <option value="google">Google</option>
+                                <option value="local">Local</option>
+                            </select>
+                            <span class="help-block">Choose weather you want to get a QR from the local library or from Google API</span>
+
+                            <label>QR Scale (Local)</label>
+                            <input type="text" id="qrscale" placeholder="Example: 4">
+                            <span class="help-block">This is only used in the local version</span>
+
+                            <label>QR Size (Google)</label>
                             <input type="text" id="size" placeholder="Example: 250">
                             <span class="help-block">This is used as a square size in PX for the Result</span>
 
@@ -51,7 +63,7 @@
                     <h2>Your generated QR</h2>
                     <div id="resultCNT"  style="display:none">
                         <img id="imgBox" />
-                        <input type="text" id="url" class="span6"/>
+                        <input type="text" id="url" class="span6" />
                     </div>
                 </div>
             </div>
