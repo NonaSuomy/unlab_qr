@@ -17,7 +17,7 @@ $(function() {
 				urlString = "create.php";
 		}
 
-		jQuery.get('../' + urlString, {q: qTerm, logoScale: scale, qrSize: size, qrScale: qrscale}, function(data, textStatus, xhr) {
+		jQuery.get(urlString, {q: qTerm, logoScale: scale, qrSize: size, qrScale: qrscale}, function(data, textStatus, xhr) {
 			$("#imgBox").attr("src", data);
 			$("#url").val(data);
 			$("#resultCNT").fadeIn();
